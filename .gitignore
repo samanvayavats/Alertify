@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.* 
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# React-specific
+*.local
+*.log
+
+# OS/Editor backups
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+
+# Cache
+.cache/
+.next/
+out/
+
+# OneDrive specific
+*.tmp
+~$*
+
+# Optional: ignore uploads/temp data
+uploads/
+tmp/
