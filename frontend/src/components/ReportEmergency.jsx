@@ -9,7 +9,7 @@ const containerStyle = {
 };
 
 const mapOptions = {
-  mapId: '573ca9d9b3a1ede8f31ead45', // vector map ID
+  mapId: import.meta.env.VITE_GOOGLE_MAPS_KEY, // vector map ID
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
@@ -26,7 +26,7 @@ function ReportEmergency() {
   const [userLocation, setUserLocation] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyCv6uk9z_vCc0ZiuSFXy2SB8BiNdaD1mMI',
+    googleMapsApiKey:import.meta.env.VITE_API_URL ,
     libraries,
   });
 
