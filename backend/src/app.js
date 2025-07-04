@@ -16,7 +16,14 @@ app.use(express.urlencoded({extended : true , limit:"16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-app.get('/' ,(req , res)=>{
-    res.send('hello alertify')
-})
+// app.get('/' ,(req , res)=>{
+//     res.send('hello alertify')
+// })
+
+import userRouter from "./routes/user.route.js"
+
+app.use('/api/v1/user' ,userRouter)
+
+
+
 export {app}
