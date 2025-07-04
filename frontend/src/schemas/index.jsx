@@ -14,3 +14,8 @@ export const registrationSchema = Yup.object({
         .test("fileSize", "Too large", (value) => value && value.size <= 2 * 1024 * 1024),
     
 })
+export const loginSchema = Yup.object({
+    name: Yup.string().min(2).max(25).required("Please enter your name"),
+    email: Yup.string().email().required("Please enter your email"),
+    password: Yup.string().min(6).required("Please enter your password"), 
+})

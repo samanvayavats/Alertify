@@ -19,8 +19,9 @@ const Register = () => {
   const { values, handleBlur, handleChange, handleSubmit, errors, setFieldValue, touched } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: (values) => {
+    onSubmit: (values , action) => {
       console.log("values", values)
+      action.resetForm()
     }
   })
 
