@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import { registrationSchema } from '../schemas/index.jsx'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const initialValues = {
   name: "",
@@ -15,13 +20,34 @@ const initialValues = {
 // console.log(registration)
 
 const Register = () => {
+  const [isUploading, setisUploading] = useState(false)
+  const navigate = useNavigate()
 
   const { values, handleBlur, handleChange, handleSubmit, errors, setFieldValue, touched } = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: (values , action) => {
-      console.log("values", values)
-      action.resetForm()
+    onSubmit: async (values, action) => {
+      // console.log("values", values)
+      setisUploading(true)
+      const formData = new FormData();
+      for (let value in values) {
+        formData.append(value, values[value]);
+      }
+       await axios.post('http://localhost:8000/api/v1/user/register', formData)
+        .then(function (response) {
+          console.log("the response from backend ", response)
+          toast.success('Regisration successfully redirecting to login')
+          action.resetForm()
+          navigate('/login')
+        })
+        .catch(function (error) {
+          toast.warning('Regisration Failed',error)
+          console.log("failed to fetch the request ", error)
+        })
+        .finally(function(){
+          setisUploading(false)
+        })
+
     }
   })
 
@@ -151,8 +177,8 @@ const Register = () => {
 
 
         </div>
-       
-            {/* avatar */}
+
+        {/* avatar */}
 
         <div className="w-full mb-1 text-center">
           <label className="block text-sm font-medium text-gray-50 mb-2">
@@ -193,8 +219,9 @@ const Register = () => {
         </div>
 
 
-        <button className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
-          Register
+        <button disabled ={isUploading}
+        className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
+          {isUploading ?'Registering...':"Register"}
         </button>
       </form>
     </div>

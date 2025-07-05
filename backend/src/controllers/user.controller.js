@@ -8,6 +8,7 @@ import { uploadeCloudinary } from "../utlis/cloudinary.js"
 const register = asyncHandler(async (req, res) => {
 
     const { name, fullname, email, password } = req.body
+   
 
     if (
         [fullname, email, name, password].some((field) => field?.trim() === "")
@@ -24,6 +25,7 @@ const register = asyncHandler(async (req, res) => {
     }
 
     console.log("file : ", req.file)
+    
     const avatarLocalPath = req.file.path
 
     if (!avatarLocalPath) {

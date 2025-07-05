@@ -23,7 +23,7 @@ const Login = () => {
   return (
      <div className='min-h-screen w-screen flex items-center justify-center bg-background '>
       <form onSubmit={handleSubmit} className='w-full max-w-md p-6 bg-primary rounded-lg flex flex-col items-center gap-4 shadow-md'>
-        <h2 className='text-2xl font-bold text-gray-50'>Register</h2>
+        <h2 className='text-2xl font-bold text-gray-50'>Login</h2>
 
         {/* name */}
 
@@ -102,7 +102,7 @@ const Login = () => {
 
 
         <button className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
-          Register
+          Login
         </button>
       </form>
     </div>
