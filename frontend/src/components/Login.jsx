@@ -1,7 +1,12 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { useFormik } from 'formik';
 import { loginSchema } from '../schemas/index.jsx'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
+
+import 'react-toastify/dist/ReactToastify.css';
 const initialValues = {
     name :"",
     email:"",
@@ -9,13 +14,29 @@ const initialValues = {
 }
 
 const Login = () => {
+ const [isUploading, setisUploading] = useState(false)
+ const navigate = useNavigate()
    
   const {values , handleBlur , handleChange , handleSubmit , errors , touched} = useFormik({
     initialValues,
     validationSchema : loginSchema,
-    onSubmit :(values , action)=>{
+    onSubmit :async (values , action)=>{
+     setisUploading(true)  
+     console.log("values : ",values)
+     await axios.post("http://localhost:8000/api/v1/user/login" , values)
+     .then( function (response){
+      console.log("the response from the backend" , response)
+      toast.success("login successfully")
       action.resetForm()
-      console.log("values : ",values)
+      navigate('/')
+     })
+     .catch(function(error){
+      console.log("Somthing went in Login" , error)
+      toast.error('Login failed' , error)
+     })
+     .finally(function(){
+       setisUploading(false)
+     })
     }
   })
 
@@ -97,12 +118,10 @@ const Login = () => {
             <p className="font-medium text-alert mt-1">{errors.password}</p>
           )}
         </div>
-
-
-
-
-        <button className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
-          Login
+        <button 
+        disabled ={isUploading}
+        className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
+          {isUploading ? 'Logging...' : 'Login'}
         </button>
       </form>
     </div>

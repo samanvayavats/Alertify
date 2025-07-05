@@ -1,6 +1,6 @@
 import { User } from "../models/user.model.js";
 import { apiError } from "../utlis/apiError.js";
-import asyncHandler from "../utlis/asynHandler.js";
+import asyncHandler from "../utlis/asyncHandler.js";
 import jwt from 'jsonwebtoken';
 // const { jwt } = pkg;
 
