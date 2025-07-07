@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/axiosInstance.js'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const containerStyle = {
   width: '100%',
@@ -19,17 +23,32 @@ const mapOptions = {
 const libraries = ['places']; // 'marker' not needed when using <Marker />, only for AdvancedMarkerElement
 
 function ReportEmergency() {
+
+
   const navigate = useNavigate()
+
+  const [userLocation, setUserLocation] = useState(null);
+
+  const sendLocationToBackend = async () =>{
+       try {
+        const res = await api.post('/v1/location/get-location' , userLocation)
+        console.log("res " , res)
+       } catch (error) {
+         toast.error('Error in Fetching location ',error)
+         console.log("Error : " , error)
+       }
+  }
+
   const redirectReportEmergencyMediaAndCaption = () =>{
+     sendLocationToBackend()
     navigate("/reportEmergencyMediaAndCaption")
   }
-  const [userLocation, setUserLocation] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey:import.meta.env.VITE_API_URL ,
     libraries,
   });
-
+  
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -39,6 +58,7 @@ function ReportEmergency() {
         };
         setUserLocation(loc);
         console.log(loc)
+       
       },
       (error) => {
         console.error('Error getting location:', error);

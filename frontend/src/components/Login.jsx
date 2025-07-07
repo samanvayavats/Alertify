@@ -4,9 +4,9 @@ import { loginSchema } from '../schemas/index.jsx'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
-
 import 'react-toastify/dist/ReactToastify.css';
+
+
 const initialValues = {
     name :"",
     email:"",
@@ -23,9 +23,9 @@ const Login = () => {
     onSubmit :async (values , action)=>{
      setisUploading(true)  
      console.log("values : ",values)
-     await axios.post("http://localhost:8000/api/v1/user/login" , values)
+     await axios.post("http://localhost:8000/api/v1/user/login" , values ,{withCredentials : true})
      .then( function (response){
-      console.log("the response from the backend" , response)
+      console.log("the response from the backend" , response.data)
       toast.success("login successfully")
       action.resetForm()
       navigate('/')

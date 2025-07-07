@@ -1,8 +1,10 @@
+import { compare } from "bcrypt";
 import { User } from "../models/user.model.js";
 import { apiError } from "../utlis/apiError.js";
 import apiResponse from "../utlis/apiResponse.js";
 import asyncHandler from "../utlis/asyncHandler.js";
 import { uploadeCloudinary } from "../utlis/cloudinary.js"
+import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshTokens = async (id) => {
 
@@ -10,7 +12,7 @@ const generateAccessAndRefreshTokens = async (id) => {
         const user = await User.findById(id)
 
         if (!user) {
-            throw new apiError(401, "user not found")
+            throw new apiError(401, "Inavlid User")
         }
 
         const refreshToken = await user.generateRefreshToken()
@@ -19,13 +21,14 @@ const generateAccessAndRefreshTokens = async (id) => {
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false });
 
+      
         return { accessToken, refreshToken };
 
 
     } catch (error) {
-        
-        console.log("Error in generating Access And RefreshTokens" ,error)
-        throw new apiError(500 , "error in generating the access and refresh token")
+
+        console.log("Error in generating Access And RefreshTokens", error)
+        throw new apiError(401, "error in generating the access and refresh token")
     }
 
 }
@@ -83,15 +86,15 @@ const register = asyncHandler(async (req, res) => {
 })
 
 const login = asyncHandler(async (req, res) => {
-    console.log("body " , req.body)
+    console.log("body ", req.body)
     const { name, email, password } = req.body
-    
+
     if (!name || !email) {
-        throw new apiError(401, " username and email is requrired")
+        throw new apiError(402, " username and email is requrired")
     }
 
     if (!password) {
-        throw new apiError(401, " password is required")
+        throw new apiError(402, " password is required")
     }
 
     const user = await User.findOne({
@@ -105,33 +108,77 @@ const login = asyncHandler(async (req, res) => {
     const isValidPassword = await user.isPasswordCorrect(password)
 
     if (!isValidPassword) {
-        throw new apiError(401, "password is incorrect")
+        throw new apiError(402, "password is incorrect")
     }
     
-    const{refreshToken , accessToken}  = await generateAccessAndRefreshTokens(user._id)
     
-     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
-     if(!loggedInUser){
-        throw new apiError(401 , "Invalid user")
-     }
+    const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(user._id)
 
-      const options = {
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+
+
+
+    if (!loggedInUser) {
+        throw new apiError(401, "Invalid user")
+    }
+
+    const options = {
         httpOnly: true,
-        secure: true
+        secure: false,
+        sameSite: "lax"
     };
 
     return res.status(200)
-    .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(new apiResponse(200 ,{loggedInUser , refreshToken , accessToken} , "user loggedIn"))
-    
+        .json(new apiResponse(200, { user : loggedInUser, refreshToken, accessToken }, "user loggedIn"))
+
 })
 
+const generateRefreshAccessToken = asyncHandler(async (req, res) => {
 
+    console.log("cookies  " , req.cookies)
+    console.log("body  " , req.body)
+    const incommingToken = req.cookies?.refreshToken || req.body?.refreshToken
+      
+    console.log("incommingToken  : ",incommingToken)
+
+    if (!incommingToken) {
+        throw new apiError(401, "Token not received")
+    }
+
+    try {
+
+        const decodedToken = jwt.verify(incommingToken, process.env.REFRESH_TOKEN_SECRET)
+
+        const user = await User.findById(decodedToken?._id).select('-password')
+
+        if (incommingToken !== user?.refreshToken) {
+            throw new apiError(401, "Invalid user or the Token mismatched")
+        }
+
+        const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(user._id)
+
+        const options = {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax"
+        }
+
+        return res.status(200)
+            .cookie('accessToken', accessToken, options)
+            .cookie('refreshToken', refreshToken, options)
+            .json(new apiResponse(200, user, "the token has been regenerated Successfully"))
+
+    } catch (error) {
+        console.log("Invalid user or can not generate the token", error.message)
+        throw new apiError(401, "Invalid user or can not generate the token" || error.message)
+    }
+})
 
 export {
-    register ,
-    login
+    register,
+    login,
+    generateRefreshAccessToken
 }
