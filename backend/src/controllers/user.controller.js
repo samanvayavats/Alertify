@@ -68,7 +68,8 @@ const register = asyncHandler(async (req, res) => {
         fullname: fullname,
         email: email,
         password: password,
-        avatar: avatar.url
+        avatar: avatar.url,
+        // uniqueId: String(crypto.randomUUID())
     })
 
     const createdUser = await User.findOne(user._id).select(
@@ -176,6 +177,7 @@ const generateRefreshAccessToken = asyncHandler(async (req, res) => {
         throw new apiError(401, "Invalid user or can not generate the token" || error.message)
     }
 })
+
 
 export {
     register,

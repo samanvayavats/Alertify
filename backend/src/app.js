@@ -19,10 +19,10 @@ app.use(express.static("public"));
 
 // ✅ Route imports
 import userRouter from "./routes/user.route.js";
-import locationRouter from "./routes/location.route.js";
+
 
 // ✅ Routes
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/location", locationRouter);
+
 
 export { app };
