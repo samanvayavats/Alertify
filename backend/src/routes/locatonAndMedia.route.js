@@ -1,5 +1,5 @@
 import { Router } from "express"
-import {getLocationAndMEdiaAndCaption} from '../controllers/locatonAndMedia.controller.js'
+import {getLocationAndMEdiaAndCaption , getAllLocation ,getDataById} from '../controllers/locatonAndMedia.controller.js'
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJwt } from "../middlewares/auth.middleware.js"
 
@@ -13,5 +13,7 @@ router.route('/location-and-media').post(verifyJwt,
   ])
     ,getLocationAndMEdiaAndCaption)
 
+router.route('/get-locations').get(verifyJwt ,getAllLocation)
+router.route('/getdata/:id').get(verifyJwt ,getDataById)
 export default router
 

@@ -1,49 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/axiosInstance.js'
 
-const dummyMarkers = [
-  {
-    id: 1,
-    title: "Landslide Reported",
-    description: "Major landslide blocking road",
-    latitude: 27.1767,
-    longitude: 78.0081,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 2,
-    title: "Accident Zone",
-    description: "Two-wheeler accident reported here",
-    latitude: 28.6139,
-    longitude: 77.2090,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 3,
-    title: "Flooded Area",
-    description: "Waterlogging due to heavy rain",
-    latitude: 19.0760,
-    longitude: 72.8777,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 4,
-    title: "Fire Outbreak",
-    description: "Fire in residential building",
-    latitude: 13.0827,
-    longitude: 80.2707,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 5,
-    title: "Blocked Road",
-    description: "Tree fallen on the main road",
-    latitude: 22.5726,
-    longitude: 88.3639,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-];
 
 const containerStyle = {
   width: '100%',
@@ -52,7 +11,7 @@ const containerStyle = {
 };
 
 const mapOptions = {
-  mapId:import.meta.env.VITE_GOOGLE_MAPS_KEY,
+  mapId: import.meta.env.VITE_GOOGLE_MAPS_KEY,
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
@@ -64,11 +23,25 @@ const libraries = ['places'];
 function CheckForEmergencies() {
   const [userLocation, setUserLocation] = useState(null);
   const navigate = useNavigate();
+ const [locationFrombackend, setlocationFrombackend] = useState([])
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_API_URL,
     libraries,
   });
+
+  const apiCallToBackendForLocations = async () => {
+    try {
+      const result = await api.get('/v1/locationandmedia/get-locations')
+      console.log("backend data : ", result.data.data)
+      setlocationFrombackend(result.data.data)
+    }
+    catch (error) {
+      console.log("error in fetching the data ", error)
+      toast.error('Somthing went wrong !! can not fetch location')
+    }
+
+  }
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -78,7 +51,9 @@ function CheckForEmergencies() {
           lng: position.coords.longitude,
         };
         setUserLocation(loc);
+        apiCallToBackendForLocations()
         console.log("User Location:", loc);
+        
       },
       (error) => {
         console.error('Error getting location:', error);
@@ -102,11 +77,11 @@ function CheckForEmergencies() {
         zoom={4}
         options={mapOptions}
       >
-        {dummyMarkers.map((element) => (
+        {locationFrombackend.map((element) => (
           <Marker
-            key={element.id}
-            position={{ lat: element.latitude, lng: element.longitude }}
-            onClick={() => getvalue(element.id)} 
+            key={element.uniqueId}
+            position={{ lat: element.lat, lng: element.lng }}
+            onClick={() => getvalue(element._id)}
             icon={{
               url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
               scaledSize: new window.google.maps.Size(50, 50),

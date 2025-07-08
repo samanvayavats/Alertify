@@ -1,72 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import PostCard from './PostCard.jsx'
 import dicess from '../assets/dicess.jpg';
-const dummyMarkers = [
-  {
-    id: 1,
-    title: "Landslide Reported",
-    description: "Major landslide blocking road",
-    latitude: 27.1767,
-    longitude: 78.0081,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 2,
-    title: "Accident Zone",
-    description: "Two-wheeler accident reported here",
-    latitude: 28.6139,
-    longitude: 77.2090,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 3,
-    title: "Flooded Area",
-    description: "Waterlogging due to heavy rain",
-    latitude: 19.0760,
-    longitude: 72.8777,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 4,
-    title: "Fire Outbreak",
-    description: "Fire in residential building",
-    latitude: 13.0827,
-    longitude: 80.2707,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-  {
-    id: 5,
-    title: "Blocked Road",
-    description: "Tree fallen on the main road",
-    latitude: 22.5726,
-    longitude: 88.3639,
-    imageUrl: "https://via.placeholder.com/100",
-  },
-];
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../utils/axiosInstance.js';
 
 const CheckForEmergenciesFetchMarkerData = () => {
   const { id } = useParams();
-  const marker = dummyMarkers.find((e) => e.id === Number(id)); // convert id to number
+  const [backendData, setBackendData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [images, setimages] = useState([])
 
-  if (!marker) {
-    return <p className='text-center py-10'>No marker found for ID: {id}</p>;
+  const getDataFromBackend = async (id) => {
+    try {
+      const result = await api.get(`/v1/locationandmedia/getdata/${id}`);
+      console.log("Fetched data:", result.data.data);
+      setBackendData(result.data.data);
+      setimages[backendData.photos]
+
+    } catch (error) {
+      console.log("error from the backend", error);
+      toast.error('Cannot fetch the media!!!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getDataFromBackend(id);
+  }, [id]);
+
+  if (loading) return <p className="text-center py-10">Loading data...</p>;
+
+  if (!backendData) {
+    return <p className="text-center py-10">No marker found for ID: {id}</p>;
   }
 
   return (
-    <div >
+    <div className="p-5">
       <PostCard
         user={{
-          name: "Samanvaya Vats",
-          profileImage: dicess
+          name: backendData.name,
+          profileImage: backendData.avatar
         }}
-        imageUrl="https://images.unsplash.com/photo-1659959103870-c4beea371a9b?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        videoUrl="sc"
-        caption="Nature is so beautiful and the weather is best 🌿"
-         // or "video"
+        imageUrls={backendData.photos}  // ✅ now an array
+        videoUrl={backendData.video}
+        caption={backendData.caption}
       />
     </div>
   );
 };
+
+// export default CheckForEmergenciesFetchMarkerData;
 
 export default CheckForEmergenciesFetchMarkerData;
