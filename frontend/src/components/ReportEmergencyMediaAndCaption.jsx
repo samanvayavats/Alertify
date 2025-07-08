@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../utils/axiosInstance.js'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -9,10 +10,28 @@ const ReportEmergencyMediaAndCaption = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isMaxImages, setIsMaxImages] = useState(false);
   const [caption, setCaption] = useState('')
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const loc = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserLocation(loc);
+        console.log(loc)
+
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+      }
+    );
+  }, []);
 
   const getTheCaption = (e) => {
-        setCaption(e.target.value)
-        console.log(caption)
+    setCaption(e.target.value)
+    console.log(caption)
   }
 
   const handleImage = (e) => {
@@ -56,27 +75,29 @@ const ReportEmergencyMediaAndCaption = () => {
 
     const formData = new FormData();
     images.forEach(image => formData.append('images', image));
+    // for (let value in images) {
+    //     formData.append(value, images[value]);
+    //   }
+    if (userLocation) formData.append('lat', userLocation.lat)
+    if (userLocation) formData.append('lng', userLocation.lng)
     if (videoFile) formData.append('video', videoFile);
-    if(caption) formData.append(caption)
+    if (caption) formData.append("caption", caption)
 
     console.log(formData)
-    // try {
-    //   await fetch('http://localhost:5000/api/upload', {
-    //     method: 'POST',
-    //     body: formData,
-    //   });
-
-    //   alert('Uploaded successfully!');
-    //   setImages([]);
-    //   setVideoFile(null);
-    //   setVideoPreview(null);
-    // setCaption('')
-    // } catch (err) {
-    //   console.error('Error uploading:', err);
-    //   alert('Upload failed.');
-    // } finally {
-    //   setIsUploading(false);
-    // }
+    try {
+      const res = await api.post('/v1/locationandmedia/location-and-media', formData)
+      console.log("res : ", res)
+      toast.success('Uploaded successfully!')
+      setImages([]);
+      setVideoFile(null);
+      setVideoPreview(null);
+      setCaption('')
+    } catch (err) {
+      console.error('Error uploading:', err);
+      toast.error('Upload failed!');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -85,10 +106,10 @@ const ReportEmergencyMediaAndCaption = () => {
       <div className="w-fit mx-auto my-10 px-6 py-6 bg-background border-2 border-black rounded-lg text-center text-accent">
         <label className="block mb-4 text-sm font-bold text-text">Add Caption</label>
         <input
-        onChange={getTheCaption}
+          onChange={getTheCaption}
           type="text"
           placeholder="Write your caption..."
-          className="lg:w-[600px] px-6 py-4 rounded-md bg-white text-accent placeholder:text-left placeholder:text-white focus:outline-none  sm:w-[400px] border-2 border-accent font-mono" 
+          className="lg:w-[600px] px-6 py-4 rounded-md bg-white text-accent placeholder:text-left placeholder:text-white focus:outline-none  sm:w-[400px] border-2 border-accent font-mono"
         />
       </div>
 

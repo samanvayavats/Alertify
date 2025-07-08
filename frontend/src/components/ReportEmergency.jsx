@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/axiosInstance.js'
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 
 
 const containerStyle = {
@@ -29,18 +27,10 @@ function ReportEmergency() {
 
   const [userLocation, setUserLocation] = useState(null);
 
-  const sendLocationToBackend = async () =>{
-       try {
-        const res = await api.post('/v1/location/get-location' , userLocation)
-        console.log("res " , res)
-       } catch (error) {
-         toast.error('Error in Fetching location ',error)
-         console.log("Error : " , error)
-       }
-  }
+ 
 
   const redirectReportEmergencyMediaAndCaption = () =>{
-     sendLocationToBackend()
+    //  sendLocationToBackend()
     navigate("/reportEmergencyMediaAndCaption")
   }
 

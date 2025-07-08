@@ -19,10 +19,12 @@ app.use(express.static("public"));
 
 // ✅ Route imports
 import userRouter from "./routes/user.route.js";
-
+import LocationAndMediaRouter from './routes/locatonAndMedia.route.js'
 
 // ✅ Routes
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/locationandmedia", LocationAndMediaRouter);
+
 
 
 export { app };
