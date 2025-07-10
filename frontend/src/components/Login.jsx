@@ -16,6 +16,10 @@ const initialValues = {
 const Login = () => {
  const [isUploading, setisUploading] = useState(false)
  const navigate = useNavigate()
+
+ const onClickOnLogin = () =>{
+  navigate('/register')
+ }
    
   const {values , handleBlur , handleChange , handleSubmit , errors , touched} = useFormik({
     initialValues,
@@ -123,6 +127,17 @@ const Login = () => {
         className='bg-accent h-10 w-full rounded-md border text-cyan-50 mt-1 hover:bg-accent/80'>
           {isUploading ? 'Logging...' : 'Login'}
         </button>
+        
+        <div className='flex '>
+          <p className='text-text pr-1'>Not registerd ?  
+          </p>
+            <p className='text-text pr-1 hover:underline'
+            onClick={onClickOnLogin}
+            >Register</p>
+        </div>
+
+
+
       </form>
     </div>
 
