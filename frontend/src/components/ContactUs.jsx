@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import api from '../utils/axiosInstance.js'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ContactUs = () => {
+  const [isUploading, setisUploading] = useState(false)
+
   const [form, setForm] = useState({
     name: '',
     email: '',
-    subject: '',
     message: '',
   });
 
@@ -12,11 +16,21 @@ const ContactUs = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setisUploading(true)
     console.log('Submitted:', form);
-    // Optionally reset
-    setForm({ name: '', email: '', subject: '', message: '' });
+    try {
+      const response = await api.post('/v1/contactus/contactus' , form)
+      console.log(response)
+       toast.success("Thnaks for your feedack || we will contact you soon")
+    } catch (error) {
+      console.log("the error from backend " , error)
+      toast.error('Somthing went wrong')
+    } finally {
+      setForm({ name: '', email: '', message: '' });
+      setisUploading(false)
+    }
   };
 
   return (
@@ -58,10 +72,12 @@ const ContactUs = () => {
         />
 
         <button
+        onSubmit={handleSubmit}
+         disabled ={isUploading}
           type="submit"
           className="bg-accent text-white rounded-md h-12 hover:bg-accent/80 transition-all"
         >
-          Send Message
+          {isUploading ? "Sending Message" : "Send Message"}
         </button>
       </form>
     </div>
