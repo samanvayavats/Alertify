@@ -47,15 +47,6 @@ const ContactUs = () => {
           required
         />
 
-        <input
-          type="text"
-          name="subject"
-          placeholder="Subject"
-          value={form.subject}
-          onChange={handleChange}
-          className="h-12 px-4 rounded-md text-text bg-white border border-cyan-50 w-full"
-        />
-
         <textarea
           name="message"
           placeholder="Your Message"
